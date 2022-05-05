@@ -10,7 +10,7 @@
 // Praeprozessor-Makros
 #define BUFFER_SIZE 1000
 #define SAMPLERATE 44000
-#define LEDGRENZE = 3.3 * 3.3 /8
+#define LEDGRENZE 3.3 * 3.3 /8
 
 
 // Funktionen-Deklarationen
@@ -63,52 +63,59 @@ void setup(void){// konfiguriert den MiKrocontroller
 
 void adcIntHandler (void){
    uint32_t adcInputValue;
-   uint32_t altestesAbtastwert;
-   uint32_t lautStaerke;
+   //uint32_t altestesAbtastwert;
+   float lautstaerke;
 
    ADCSequenceDataGet(ADC0_BASE,3,&adcInputValue);
    if(index >= BUFFER_SIZE){
        index -= BUFFER_SIZE;
    }
-   altestestesAbtestwert = bufferSample(index);
-   bufferSample(index) = adcInputValue^2;
-   sum = sum - altestesAbtestwert + bufferSample(index);
-   lautStaerke = sum/BUFFER_SIZE;
+   /*altestesAbtastwert = bufferSample[index];
+   bufferSample[index] = adcInputValue^2;
+   sum = sum - altestesAbtastwert + bufferSample[index];
+   */
+
+
+   sum -= bufferSample[index];
+   bufferSample[index] = adcInputValue^2;
+   sum += bufferSample[index];
+
+   lautstaerke = sum/BUFFER_SIZE;
    index ++;
 
-   if (lautStaerke >= 7*LEDGRENZE) {
-       GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0xFF);
+   if (lautstaerke >= 7 * LEDGRENZE) {
+       GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, 0xFF);
        }
-       else if (lautStaerke >= 6*LEDGRENZE) {
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6, 0xFF);
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN7, 0x00);
+       else if (lautstaerke >= 6*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_7, 0x00);
        }
-       else if (lautStaerke >= 5*LEDGRENZE) {
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5, 0xFF);
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN6|GPIO_PIN7, 0x00);
+       else if (lautstaerke >= 5*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_6|GPIO_PIN_7, 0x00);
        }
-       else if (lautStaerke >= 4*LEDGRENZE) {
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4, 0xFF);
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
+       else if (lautstaerke >= 4*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, 0x00);
        }
-       else if (lautStaerke >= 3*LEDGRENZE) {
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3, 0xFF);
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
+       else if (lautstaerke >= 3*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, 0x00);
        }
-       else if (lautStaerke >= 2*LEDGRENZE) {
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2, 0xFF);
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
+       else if (lautstaerke >= 2*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, 0x00);
        }
-       else if (lautStaerke >= 1*LEDGRENZE) {
+       else if (lautstaerke >= LEDGRENZE) {
            GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1, 0xFF);
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, 0x00);
        }
-       else if (lautStaerke > 0*LEDGRENZE) {
+       else if (lautstaerke > 0) {
            GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0, 0xFF);
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, 0x00);
        }
        else {
-           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, 0x00);
    }
 
 
