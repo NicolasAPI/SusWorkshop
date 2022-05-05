@@ -119,7 +119,7 @@ void adcIntHandler (void){
    }
 
 
-
+//lol
    // am Ende von adcIntHandler, Interrupt-Flag loeschen
    ADCIntClear(ADC0_BASE,3);
 }
