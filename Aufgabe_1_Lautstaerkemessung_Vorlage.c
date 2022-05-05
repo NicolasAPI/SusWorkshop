@@ -10,6 +10,7 @@
 // Praeprozessor-Makros
 #define BUFFER_SIZE 1000
 #define SAMPLERATE 44000
+#define LEDGRENZE = 3.3 * 3.3 /8
 
 
 // Funktionen-Deklarationen
@@ -18,8 +19,8 @@ void setup(void);
 
 // globale Variablen
 int32_t bufferSample[BUFFER_SIZE] = {0}; //Ringpuffer-Deklarationen
-int32_t index_b = 0;
-int32_t volume = 0;
+uint32_t index = 0;
+float sum = 0;
 // hier weitere benötigten globalen Variablen einfuegen
 
 void main(void){ // nicht veraendern!! Bitte Code in adcIntHandler einfuegen 
@@ -60,29 +61,58 @@ void setup(void){// konfiguriert den MiKrocontroller
 
 }
 
-void LED_Ansteuerung(uint32_t Output) {
-    if () {
-    
-    }
-}
+void adcIntHandler (void){
+   uint32_t adcInputValue;
+   uint32_t altestesAbtastwert;
+   uint32_t lautStaerke;
 
-void adcIntHandler(void) {
-    uint32_t adcInputValue;
-    ADCSequenceDataGet(ADC0_BASE, 3, &adcInputValue);
-    // Bitte Code hier einfuegen
-
-    volume -= bufferSample(index_b);
-    bufferSample(index_b) = adcInputValue ^ 2;
-    volume += bufferSample(index_b);
-
-
-   if (index_b >= BUFFER_SIZE - 1) {
-       index_b = 0;
+   ADCSequenceDataGet(ADC0_BASE,3,&adcInputValue);
+   if(index >= BUFFER_SIZE){
+       index -= BUFFER_SIZE;
    }
-   else if (index_b < BUFFER_SIZE - 1) {
-       index_b += 1;
+   altestestesAbtestwert = bufferSample(index);
+   bufferSample(index) = adcInputValue^2;
+   sum = sum - altestesAbtestwert + bufferSample(index);
+   lautStaerke = sum/BUFFER_SIZE;
+   index ++;
+
+   if (lautStaerke >= 7*LEDGRENZE) {
+       GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0xFF);
+       }
+       else if (lautStaerke >= 6*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN7, 0x00);
+       }
+       else if (lautStaerke >= 5*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN6|GPIO_PIN7, 0x00);
+       }
+       else if (lautStaerke >= 4*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
+       }
+       else if (lautStaerke >= 3*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
+       }
+       else if (lautStaerke >= 2*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
+       }
+       else if (lautStaerke >= 1*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
+       }
+       else if (lautStaerke > 0*LEDGRENZE) {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0, 0xFF);
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
+       }
+       else {
+           GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN2|GPIO_PIN3|GPIO_PIN4|GPIO_PIN5|GPIO_PIN6|GPIO_PIN7, 0x00);
    }
-   
+
+
+
    // am Ende von adcIntHandler, Interrupt-Flag loeschen
    ADCIntClear(ADC0_BASE,3);
 }
