@@ -64,17 +64,12 @@ void adcIntHandler(void) {
     uint32_t adcInputValue;
     ADCSequenceDataGet(ADC0_BASE, 3, &adcInputValue);
     // Bitte Code hier einfuegen
-    if (index_b != 0) {
-        volume -= bufferSample(index_b - 1);
-        volume += bufferSample(index_b);
-    }
-    else if (index_b == 0) {
-        volume -= bufferSample(BUFFER_SIZE - 1);
-        volume += bufferSample(index_b);
-    }
-
-
-
+    
+    volume -= bufferSample(index_b);
+    bufferSample(index_b) = adcInputValue ^ 2;
+    volume += bufferSample(index_b);
+    
+    
    if (index_b >= bufferSample - 1) {
        index_b = 0;
    }
