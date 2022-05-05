@@ -60,6 +60,12 @@ void setup(void){// konfiguriert den MiKrocontroller
 
 }
 
+void LED_Ansteuerung(uint32_t Output) {
+    if () {
+    
+    }
+}
+
 void adcIntHandler(void) {
     uint32_t adcInputValue;
     ADCSequenceDataGet(ADC0_BASE, 3, &adcInputValue);
