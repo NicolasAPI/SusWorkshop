@@ -69,7 +69,7 @@ void adcIntHandler(void) {
         volume += bufferSample(index_b);
     }
     else if (index_b == 0) {
-        volume -= bufferSample(bufferSample - 1);
+        volume -= bufferSample(BUFFER_SIZE - 1);
         volume += bufferSample(index_b);
     }
 
