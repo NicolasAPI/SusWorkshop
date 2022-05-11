@@ -63,26 +63,24 @@ void setup(void){// konfiguriert den MiKrocontroller
 
 void adcIntHandler (void){
    uint32_t adcInputValue;
-   //uint32_t altestesAbtastwert;
    float lautstaerke;
 
+   //Index des Buffers bei 1000 zurücksetzen
    ADCSequenceDataGet(ADC0_BASE,3,&adcInputValue);
    if(index >= BUFFER_SIZE){
        index = 0;
    }
-   /*altestesAbtastwert = bufferSample[index];
-   bufferSample[index] = adcInputValue^2;
-   sum = sum - altestesAbtastwert + bufferSample[index];
-   */
-
-
+   
+   //MIR-Filter
    sum -= bufferSample[index];
    bufferSample[index] = adcInputValue*adcInputValue;
    sum += bufferSample[index];
 
+   //Lautstärke berechnen
    lautstaerke = sum/BUFFER_SIZE;
    index ++;
 
+   //LEDs ansteuern
    if (lautstaerke >= 7 * LEDGRENZE) {
        GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, 0xFF);
        }
@@ -119,7 +117,7 @@ void adcIntHandler (void){
    }
 
 
-//lol
+
    // am Ende von adcIntHandler, Interrupt-Flag loeschen
    ADCIntClear(ADC0_BASE,3);
 }
