@@ -83,14 +83,14 @@ void adcIntHandler(void) {
     ADCSequenceDataGet(ADC0_BASE, 3, &adcInputValue);
     bufferSample[sampleIndex] = adcInputValue;
 
-    // Index zur¸cksetzen
+    // Index zur√ºcksetzen
     if (sampleIndex >= 440) {
         sampleIndex = 0;
         uint32_t k;
         uint32_t i;
         float imCoefficient = 0;
         float reCoefficient = 0;
-        // Real- und Imagin‰rkoeffizienten berechnen
+        // Real- und Imagin√§rkoeffizienten berechnen
         for (k=1;k<440;k++) {
             for (i=1;i<440;i++) {
                 imCoefficient += bufferSample[i]*sinf(DoublePi*i*k/440);
@@ -144,10 +144,12 @@ void adcIntHandler(void) {
                         GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0, 0xFF);
                         GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, 0x00);
                     }
-
+                    else if (co < grenze/8) {
+                        GPIOPinWrite(GPIO_PORTB_BASE,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, 0x00);
+                    }
     }
     else {
-        // Index erhˆhen
+        // Index erh√∂hen
         sampleIndex++;
     }
 
